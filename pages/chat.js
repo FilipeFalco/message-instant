@@ -3,6 +3,7 @@ import { Box, Text, TextField, Image, Button } from "@skynexui/components";
 import React from "react";
 import appConfig from "../config.json";
 import { createClient } from "@supabase/supabase-js";
+import Skeleton from "../components/skeleton/Skeleton";
 
 const SUPABASE_ANON_KEY =
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlIjoiYW5vbiIsImlhdCI6MTY0MzM5MzcyNCwiZXhwIjoxOTU4OTY5NzI0fQ.SkiAYM1EH-2vrHnvZpqAlRPoJ9UnHMnsnsgJCJB4_gU";
@@ -12,6 +13,7 @@ const supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 export default function ChatPage() {
   const [mensagem, setMensagem] = React.useState("");
   const [listaMensagens, setListaMensagens] = React.useState([]);
+  const [isLoading, setIsLoading] = React.useState(true);
 
   React.useEffect(() => {
     const dadosDoSupabase = supabaseClient
@@ -21,6 +23,7 @@ export default function ChatPage() {
       .then(({ data }) => {
         console.log("Dados:", data);
         setListaMensagens(data);
+        setIsLoading(false);
       });
     console.log(dadosDoSupabase);
   }, []);
@@ -82,7 +85,7 @@ export default function ChatPage() {
             padding: "16px",
           }}
         >
-          <MessageList mensagens={listaMensagens} />
+          <MessageList mensagens={listaMensagens} isLoading={isLoading} />
           {/* {listaMensagens.map((mensagemAtual) => {
             return (
               <li key={mensagemAtual.id}>
@@ -152,7 +155,7 @@ function Header() {
   );
 }
 
-function MessageList(props) {
+function MessageList({ mensagens, isLoading }) {
   return (
     <Box
       tag="ul"
@@ -166,51 +169,55 @@ function MessageList(props) {
         marginBottom: "16px",
       }}
     >
-      {props.mensagens.map((mensagemAtual) => {
-        return (
-          <Text
-            key={mensagemAtual.id}
-            tag="li"
-            styleSheet={{
-              borderRadius: "5px",
-              padding: "6px",
-              marginBottom: "12px",
-              hover: {
-                backgroundColor: appConfig.theme.colors.neutrals[700],
-              },
-            }}
-          >
-            <Box
+      {isLoading ? (
+        <Skeleton />
+      ) : (
+        mensagens.map((mensagemAtual) => {
+          return (
+            <Text
+              key={mensagemAtual.id}
+              tag="li"
               styleSheet={{
-                marginBottom: "8px",
+                borderRadius: "5px",
+                padding: "6px",
+                marginBottom: "12px",
+                hover: {
+                  backgroundColor: appConfig.theme.colors.neutrals[700],
+                },
               }}
             >
-              <Image
+              <Box
                 styleSheet={{
-                  width: "20px",
-                  height: "20px",
-                  borderRadius: "50%",
-                  display: "inline-block",
-                  marginRight: "8px",
+                  marginBottom: "8px",
                 }}
-                src={`https://github.com/${mensagemAtual.de}.png`}
-              />
-              <Text tag="strong">{mensagemAtual.de}</Text>
-              <Text
-                styleSheet={{
-                  fontSize: "10px",
-                  marginLeft: "8px",
-                  color: appConfig.theme.colors.neutrals[300],
-                }}
-                tag="span"
               >
-                {new Date().toLocaleDateString()}
-              </Text>
-            </Box>
-            {mensagemAtual.texto}
-          </Text>
-        );
-      })}
+                <Image
+                  styleSheet={{
+                    width: "20px",
+                    height: "20px",
+                    borderRadius: "50%",
+                    display: "inline-block",
+                    marginRight: "8px",
+                  }}
+                  src={`https://github.com/${mensagemAtual.de}.png`}
+                />
+                <Text tag="strong">{mensagemAtual.de}</Text>
+                <Text
+                  styleSheet={{
+                    fontSize: "10px",
+                    marginLeft: "8px",
+                    color: appConfig.theme.colors.neutrals[300],
+                  }}
+                  tag="span"
+                >
+                  {new Date().toLocaleDateString()}
+                </Text>
+              </Box>
+              {mensagemAtual.texto}
+            </Text>
+          );
+        })
+      )}
     </Box>
   );
 }
