@@ -23,19 +23,6 @@ function Titulo(props) {
   );
 }
 
-// Componente React
-// function HomePage() {
-//   return (
-//     <div>
-//       <GlobalStyle />
-//       <Title tag="h2">Boas vindas de volta!</Title>
-//       <h2>Discord - Alura Matrix</h2>
-//     </div>
-//   );
-// }
-
-// export default HomePage;
-
 export default function PaginaInicial() {
   // const username = "peas";
   const [username, setUsername] = React.useState("filipefalco");
@@ -80,7 +67,7 @@ export default function PaginaInicial() {
             as="form"
             onSubmit={function (event) {
               event.preventDefault();
-              roteamento.push("/chat");
+              roteamento.push(`/chat?username=${username}`);
             }}
             styleSheet={{
               display: "flex",
